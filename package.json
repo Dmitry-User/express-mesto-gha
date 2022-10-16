@@ -1,0 +1,22 @@
+{
+  "name": "express-mesto-gha",
+  "homepage": "https://github.com/Dmitry-User/express-mesto-gha",
+  "version": "1.0.0",
+  "author": "Dmitry Pavlov",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "lint": "npx eslint"
+  },
+  "devDependencies": {
+    "eslint": "^8.25.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "mongoose": "^6.6.5",
+    "nodemon": "^2.0.20"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
