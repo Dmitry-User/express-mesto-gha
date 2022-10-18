@@ -21,26 +21,23 @@ const createCard = (req, res) => {
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
-        return res.status(400).send({ message: 'Ошибка валидации', err });
+        return res.status(400).send({ message: 'Переданы некорректные данные при создании карточки', err });
       }
       return res.status(500).send({ message: 'На сервере произошла ошибка', err });
     });
 };
 
 const deleteCard = (req, res) => {
-  const { name, link } = req.body;
-  const owner = req.user._id;
+  const { cardId } = req.params;
 
-  Card.create({ name, link, owner })
+  Card.findByIdAndRemove(cardId)
     .then((card) => {
-      res.status(200).send(card);
-    })
-    .catch((err) => {
-      if (err instanceof mongoose.Error.ValidationError) {
-        return res.status(400).send({ message: 'Ошибка валидации', err });
+      if (!card) {
+        return res.status(404).send({ message: 'Карточка с указанным _id не найдена' });
       }
-      return res.status(500).send({ message: 'На сервере произошла ошибка', err });
-    });
+      return res.send({ message: 'Пост удален' });
+    })
+    .catch((err) => res.status(500).send({ message: 'На сервере произошла ошибка', err }));
 };
 
 module.exports = {

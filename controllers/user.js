@@ -18,12 +18,9 @@ const getUserById = (req, res) => {
     })
     .catch((err) => {
       if (err.message === 'Not Found') {
-        return res.status(404).send({ message: 'Пользователь с указанным userId не найден' });
+        res.status(404).send({ message: 'Пользователь по указанному _id не найден' });
       }
-      if (err instanceof mongoose.Error.CastError) {
-        return res.status(400).send({ message: 'НЕ корректный userId', err });
-      }
-      return res.status(500).send({ message: 'На сервере произошла ошибка', err });
+      res.status(500).send({ message: 'На сервере произошла ошибка', err });
     });
 };
 
@@ -36,9 +33,41 @@ const createUser = (req, res) => {
     })
     .catch((err) => {
       if (err.name instanceof mongoose.Error.ValidationError) {
-        return res.status(400).send({ message: 'Ошибка валидации', err });
+        res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя', err });
       }
-      return res.status(500).send({ message: 'На сервере произошла ошибка', err });
+      res.status(500).send({ message: 'На сервере произошла ошибка', err });
+    });
+};
+
+const updateUser = (req, res) => {
+  const userId = req.user._id;
+  const { name, about } = req.body;
+
+  User.findByIdAndUpdate(userId, { name, about }, { new: true, runValidators: true })
+    .then(() => {
+      res.send({ message: 'Данные пользователя обновлены' });
+    })
+    .catch((err) => {
+      if (err.name instanceof mongoose.Error.ValidationError) {
+        res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля', err });
+      }
+      res.status(500).send({ message: 'На сервере произошла ошибка', err });
+    });
+};
+
+const updateAvatar = (req, res) => {
+  const userId = req.user._id;
+  const { avatar } = req.body;
+
+  User.findByIdAndUpdate(userId, { avatar }, { new: true, runValidators: true })
+    .then(() => {
+      res.send({ message: 'Аватар пользователя обновлен' });
+    })
+    .catch((err) => {
+      if (err.name instanceof mongoose.Error.ValidationError) {
+        res.status(400).send({ message: 'Переданы некорректные данные при обновлении аватара', err });
+      }
+      res.status(500).send({ message: 'На сервере произошла ошибка', err });
     });
 };
 
@@ -46,4 +75,6 @@ module.exports = {
   getUsers,
   getUserById,
   createUser,
+  updateUser,
+  updateAvatar,
 };
