@@ -1,26 +1,32 @@
 const mongoose = require('mongoose');
 const User = require('../models/user');
+const {
+  STATUS_BAD_REQUEST,
+  STATUS_NOT_FOUND,
+  STATUS_INTERNAL_SERVER_ERROR,
+} = require('../utils/constants');
 
 const getUsers = (req, res) => {
   User.find({})
     .then((users) => {
       res.send(users);
     })
-    .catch((err) => {
-      res.status(500).send({ message: 'На сервере произошла ошибка', err });
+    .catch(() => {
+      res.status(STATUS_INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
     });
 };
 
 const getUserById = (req, res) => {
-  User.findById(req.params.userId).orFail(new Error('Not Found'))
+  User.findById(req.params.userId).orFail()
     .then((user) => {
       res.send(user);
     })
     .catch((err) => {
-      if (err.message === 'Not Found') {
-        res.status(404).send({ message: 'Пользователь по указанному _id не найден' });
+      if (err instanceof mongoose.Error.DocumentNotFoundError) {
+        res.status(STATUS_NOT_FOUND).send({ message: 'Пользователь по указанному _id не найден' });
+        return;
       }
-      res.status(500).send({ message: 'На сервере произошла ошибка', err });
+      res.status(STATUS_INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
     });
 };
 
@@ -28,14 +34,15 @@ const createUser = (req, res) => {
   const { name, about, avatar } = req.body;
 
   User.create({ name, about, avatar })
-    .then((user) => {
-      res.status(200).send(user);
+    .then((newUser) => {
+      res.send(newUser);
     })
     .catch((err) => {
       if (err.name instanceof mongoose.Error.ValidationError) {
-        res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя', err });
+        res.status(STATUS_BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
+        return;
       }
-      res.status(500).send({ message: 'На сервере произошла ошибка', err });
+      res.status(STATUS_INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
     });
 };
 
@@ -43,15 +50,20 @@ const updateUser = (req, res) => {
   const userId = req.user._id;
   const { name, about } = req.body;
 
-  User.findByIdAndUpdate(userId, { name, about }, { new: true, runValidators: true })
-    .then(() => {
-      res.send({ message: 'Данные пользователя обновлены' });
+  User.findByIdAndUpdate(userId, { name, about }, { new: true, runValidators: true }).orFail()
+    .then((updatedUser) => {
+      res.send(updatedUser);
     })
     .catch((err) => {
       if (err.name instanceof mongoose.Error.ValidationError) {
-        res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля', err });
+        res.status(STATUS_BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
+        return;
       }
-      res.status(500).send({ message: 'На сервере произошла ошибка', err });
+      if (err instanceof mongoose.Error.DocumentNotFoundError) {
+        res.status(STATUS_NOT_FOUND).send({ message: 'Пользователь с указанным _id не найден' });
+        return;
+      }
+      res.status(STATUS_INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
     });
 };
 
@@ -59,15 +71,20 @@ const updateAvatar = (req, res) => {
   const userId = req.user._id;
   const { avatar } = req.body;
 
-  User.findByIdAndUpdate(userId, { avatar }, { new: true, runValidators: true })
-    .then(() => {
-      res.send({ message: 'Аватар пользователя обновлен' });
+  User.findByIdAndUpdate(userId, { avatar }, { new: true, runValidators: true }).orFail()
+    .then((updatedUser) => {
+      res.send(updatedUser);
     })
     .catch((err) => {
       if (err.name instanceof mongoose.Error.ValidationError) {
-        res.status(400).send({ message: 'Переданы некорректные данные при обновлении аватара', err });
+        res.status(STATUS_BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
+        return;
       }
-      res.status(500).send({ message: 'На сервере произошла ошибка', err });
+      if (err instanceof mongoose.Error.DocumentNotFoundError) {
+        res.status(STATUS_NOT_FOUND).send({ message: 'Пользователь с указанным _id не найден' });
+        return;
+      }
+      res.status(STATUS_INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
     });
 };
 

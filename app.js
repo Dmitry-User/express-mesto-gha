@@ -18,7 +18,8 @@ app.use((req, res, next) => {
 });
 
 app.use(router);
-
-app.listen(PORT, () => {
-  console.log(`App listening on port ${PORT}`);
+app.use('*', (req, res) => {
+  res.status(404).send({ message: 'Запрашиваемый адрес не найден' });
 });
+
+app.listen(PORT);
