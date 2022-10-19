@@ -22,6 +22,10 @@ const getUserById = (req, res) => {
       res.send(user);
     })
     .catch((err) => {
+      if (err instanceof mongoose.Error.CastError) {
+        res.status(STATUS_BAD_REQUEST).send({ message: 'Некорректный _id пользователя' });
+        return;
+      }
       if (err instanceof mongoose.Error.DocumentNotFoundError) {
         res.status(STATUS_NOT_FOUND).send({ message: 'Пользователь по указанному _id не найден' });
         return;
@@ -55,7 +59,7 @@ const updateUser = (req, res) => {
       res.send(updatedUser);
     })
     .catch((err) => {
-      if (err.name instanceof mongoose.Error.ValidationError) {
+      if (err instanceof mongoose.Error.ValidationError) {
         res.status(STATUS_BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
         return;
       }
@@ -76,7 +80,7 @@ const updateAvatar = (req, res) => {
       res.send(updatedUser);
     })
     .catch((err) => {
-      if (err.name instanceof mongoose.Error.ValidationError) {
+      if (err instanceof mongoose.Error.ValidationError) {
         res.status(STATUS_BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
         return;
       }
