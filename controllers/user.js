@@ -38,7 +38,7 @@ const createUser = (req, res) => {
       res.send(newUser);
     })
     .catch((err) => {
-      if (err.name instanceof mongoose.Error.ValidationError) {
+      if (err instanceof mongoose.Error.ValidationError) {
         res.status(STATUS_BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
         return;
       }
