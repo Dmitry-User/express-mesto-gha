@@ -39,6 +39,10 @@ const deleteCard = (req, res) => {
       res.send({ message: 'Пост удален' });
     })
     .catch((err) => {
+      if (err instanceof mongoose.Error.CastError) {
+        res.status(STATUS_BAD_REQUEST).send({ message: 'Не корректный _id карточки' });
+        return;
+      }
       if (err instanceof mongoose.Error.DocumentNotFoundError) {
         res.status(STATUS_NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена' });
         return;
