@@ -1,6 +1,12 @@
+// require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
+const limiter = require('express-rate-limit');
+const cookieParser = require('cookie-parser');
+const helmet = require('helmet');
+const { errors } = require('celebrate');
 const router = require('./routes');
+const handleError = require('./middlewares/handleError');
 
 const { PORT = 3000, MONGO_URL = 'mongodb://localhost:27017/mestodb' } = process.env;
 
@@ -8,15 +14,17 @@ mongoose.connect(MONGO_URL);
 
 const app = express();
 
+app.use(limiter({
+  windowMs: 15 * 60 * 1000, // за 15 минут
+  max: 100, // можно совершить максимум 100 запросов с одного IP
+}));
+
+app.use(cookieParser());
+app.use(helmet());
 app.use(express.json()); // встроенный метод, вместо body-parser
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '634d29cbd1e23667ab0c9c23', // временное решение
-  };
-  next();
-});
-
 app.use(router);
+app.use(errors());
+app.use(handleError);
 
 app.listen(PORT);
