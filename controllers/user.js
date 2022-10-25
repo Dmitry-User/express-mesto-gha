@@ -2,13 +2,10 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const { JWT_SECRET } = require('../utils/constants');
 const NotFoundError = require('../errors/not-found-err');
-
-const { NODE_ENV, JWT_SECRET } = process.env;
-
-const {
-  STATUS_BAD_REQUEST,
-} = require('../utils/constants');
+const BadRequestError = require('../errors/bad-request-err');
+const ConflictError = require('../errors/conflict-err');
 
 const getUsers = (req, res, next) => {
   User.find({})
@@ -51,9 +48,12 @@ const createUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
-        res.status(STATUS_BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
+        next(new BadRequestError('Переданы некорректные данные'));
+      } else if (err.code === 11000) {
+        next(new ConflictError('Пользователь с указанным email уже зарегистрирован'));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 
@@ -70,10 +70,10 @@ const updateUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
-        res.status(STATUS_BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
-        return;
+        next(new BadRequestError('Переданы некорректные данные'));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 
@@ -90,9 +90,10 @@ const updateAvatar = (req, res, next) => {
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
-        res.status(STATUS_BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
+        next(new BadRequestError('Переданы некорректные данные'));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 
@@ -103,7 +104,7 @@ const login = (req, res, next) => {
     .then((user) => {
       const token = jwt.sign(
         { _id: user._id },
-        NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
+        JWT_SECRET,
         { expiresIn: '7d' },
       );
       res
@@ -112,14 +113,9 @@ const login = (req, res, next) => {
           maxAge: 3600000 * 24 * 7,
           sameSite: true,
         })
-        .send({ message: 'Successful!' });
+        .send({ message: 'Авторизация прошла успешно!' });
     })
-    .catch((err) => {
-      if (err instanceof mongoose.Error.ValidationError) {
-        res.status(STATUS_BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
-      }
-      next(err);
-    });
+    .catch(next);
 };
 
 module.exports = {
