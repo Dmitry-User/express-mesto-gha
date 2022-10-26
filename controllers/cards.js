@@ -6,7 +6,6 @@ const ForbiddenError = require('../errors/forbidden-err');
 
 const getCards = (req, res, next) => {
   Card.find({})
-    .populate({ path: 'likes', model: 'user' })
     .then((cards) => {
       res.send(cards);
     })
@@ -59,7 +58,6 @@ const likeCard = (req, res, next) => {
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
-    .populate({ path: 'likes', model: 'user' })
     .then((card) => {
       if (!card) {
         throw new NotFoundError('Карточка с указанным _id не найдена');
