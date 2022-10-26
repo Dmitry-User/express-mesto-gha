@@ -26,6 +26,22 @@ const getUser = (req, res, next) => {
     .catch(next);
 };
 
+const getUserById = (req, res, next) => {
+  User.findById(req.params.userId)
+    .then((user) => {
+      if (!user) {
+        throw new NotFoundError('Пользователь с указанным _id не найден');
+      }
+      res.send(user);
+    })
+    .catch((err) => {
+      if (err instanceof mongoose.Error.CastError) {
+        return next(new BadRequestError('Некорректный _id пользователя'));
+      }
+      return next(err);
+    });
+};
+
 const createUser = (req, res, next) => {
   const {
     name,
@@ -44,16 +60,18 @@ const createUser = (req, res, next) => {
       password: hash, // записываем хеш в базу
     }))
     .then((newUser) => {
-      res.send(newUser);
+      const userWithoutPassword = newUser.toObject();
+      delete userWithoutPassword.password;
+      res.send(userWithoutPassword);
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
-        next(new BadRequestError('Переданы некорректные данные'));
-      } else if (err.code === 11000) {
-        next(new ConflictError('Пользователь с указанным email уже зарегистрирован'));
-      } else {
-        next(err);
+        return next(new BadRequestError('Переданы некорректные данные'));
       }
+      if (err.code === 11000) {
+        return next(new ConflictError('Пользователь с указанным email уже зарегистрирован'));
+      }
+      return next(err);
     });
 };
 
@@ -70,10 +88,9 @@ const updateUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
-        next(new BadRequestError('Переданы некорректные данные'));
-      } else {
-        next(err);
+        return next(new BadRequestError('Переданы некорректные данные'));
       }
+      return next(err);
     });
 };
 
@@ -90,10 +107,9 @@ const updateAvatar = (req, res, next) => {
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
-        next(new BadRequestError('Переданы некорректные данные'));
-      } else {
-        next(err);
+        return next(new BadRequestError('Переданы некорректные данные'));
       }
+      return next(err);
     });
 };
 
@@ -120,6 +136,7 @@ const login = (req, res, next) => {
 
 module.exports = {
   getUsers,
+  getUserById,
   getUser,
   createUser,
   updateUser,

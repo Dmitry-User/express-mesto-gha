@@ -1,6 +1,5 @@
 const { celebrate, Joi } = require('celebrate');
-// eslint-disable-next-line no-useless-escape
-const REGEX = /^https?:\/\/([wW]{3})?(\w*)([\w\-\.\_~:\/?#\[\]@!$&'\()*\+,;=])*/;
+const { REGEX } = require('../utils/constants');
 
 const verifyLogin = celebrate({
   body: Joi.object().keys({
@@ -16,6 +15,12 @@ const verifyUserCreate = celebrate({
     avatar: Joi.string().pattern(REGEX),
     email: Joi.string().required().email({ tlds: { allow: false } }),
     password: Joi.string().required(),
+  }),
+});
+
+const verifyUserId = celebrate({
+  params: Joi.object().keys({
+    userId: Joi.string().required().alphanum().length(24),
   }),
 });
 
@@ -35,6 +40,7 @@ const verifyAvatar = celebrate({
 module.exports = {
   verifyLogin,
   verifyUserCreate,
+  verifyUserId,
   verifyUserUpdate,
   verifyAvatar,
 };

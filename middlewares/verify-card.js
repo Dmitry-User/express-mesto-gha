@@ -1,6 +1,5 @@
 const { celebrate, Joi } = require('celebrate');
-// eslint-disable-next-line no-useless-escape
-const REGEX = /^https?:\/\/([wW]{3})?(\w*)([\w\-\.\_~:\/?#\[\]@!$&'\()*\+,;=])*/;
+const { REGEX } = require('../utils/constants');
 
 const verifyCard = celebrate({
   body: Joi.object().keys({
@@ -11,7 +10,7 @@ const verifyCard = celebrate({
 
 const verifyCardId = celebrate({
   params: Joi.object().keys({
-    cardId: Joi.string().required().length(24).hex(),
+    cardId: Joi.string().required().length(24).length(24),
   }),
 });
 

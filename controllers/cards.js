@@ -23,10 +23,9 @@ const createCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
-        next(new BadRequestError('Переданы некорректные данные'));
-      } else {
-        next(err);
+        return next(new BadRequestError('Переданы некорректные данные'));
       }
+      return next(err);
     });
 };
 
@@ -48,10 +47,9 @@ const deleteCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
-        next(new BadRequestError('Не корректный _id карточки'));
-      } else {
-        next(err);
+        return next(new BadRequestError('Не корректный _id карточки'));
       }
+      return next(err);
     });
 };
 
@@ -70,10 +68,9 @@ const likeCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
-        next(new BadRequestError('Не корректный _id карточки'));
-      } else {
-        next(err);
+        return next(new BadRequestError('Не корректный _id карточки'));
       }
+      return next(err);
     });
 };
 
@@ -91,10 +88,9 @@ const dislikeCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
-        next(new BadRequestError('Не корректный _id карточки'));
-      } else {
-        next(err);
+        return next(new BadRequestError('Не корректный _id карточки'));
       }
+      return next(err);
     });
 };
 

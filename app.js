@@ -6,7 +6,7 @@ const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
 const { errors } = require('celebrate');
 const router = require('./routes');
-const handleError = require('./middlewares/handleError');
+const handleError = require('./middlewares/handle-error');
 
 const {
   PORT = 3000,
@@ -18,7 +18,7 @@ mongoose.connect(MONGO_URL);
 const app = express();
 
 app.use(limiter({
-  windowMs: 15 * 60 * 1000, // за 15 минут
+  windowMs: 10 * 60 * 1000, // за 10 минут
   max: 100, // можно совершить максимум 100 запросов с одного IP
 }));
 
