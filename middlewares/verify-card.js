@@ -10,7 +10,7 @@ const verifyCard = celebrate({
 
 const verifyCardId = celebrate({
   params: Joi.object().keys({
-    cardId: Joi.string().required().length(24).length(24),
+    cardId: Joi.string().required().alphanum().length(24),
   }),
 });
 
