@@ -17,10 +17,8 @@ const getUsers = (req, res, next) => {
 
 const getUser = (req, res, next) => {
   User.findById(req.user._id)
+    .orFail(new NotFoundError('Пользователь с указанным _id не найден'))
     .then((user) => {
-      if (!user) {
-        throw new NotFoundError('Пользователь с указанным _id не найден');
-      }
       res.send(user);
     })
     .catch(next);
@@ -28,10 +26,8 @@ const getUser = (req, res, next) => {
 
 const getUserById = (req, res, next) => {
   User.findById(req.params.userId)
+    .orFail(new NotFoundError('Пользователь с указанным _id не найден'))
     .then((user) => {
-      if (!user) {
-        throw new NotFoundError('Пользователь с указанным _id не найден');
-      }
       res.send(user);
     })
     .catch((err) => {
@@ -80,10 +76,8 @@ const updateUser = (req, res, next) => {
   const { name, about } = req.body;
 
   User.findByIdAndUpdate(userId, { name, about }, { new: true, runValidators: true })
+    .orFail(new NotFoundError('Пользователь с указанным _id не найден'))
     .then((updatedUser) => {
-      if (!updatedUser) {
-        throw new NotFoundError('Пользователь с указанным _id не найден');
-      }
       res.send(updatedUser);
     })
     .catch((err) => {
@@ -99,10 +93,8 @@ const updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
 
   User.findByIdAndUpdate(userId, { avatar }, { new: true, runValidators: true })
+    .orFail(new NotFoundError('Пользователь с указанным _id не найден'))
     .then((updatedUser) => {
-      if (!updatedUser) {
-        throw new NotFoundError('Пользователь с указанным _id не найден');
-      }
       res.send(updatedUser);
     })
     .catch((err) => {

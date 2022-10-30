@@ -32,10 +32,8 @@ const deleteCard = (req, res, next) => {
   const { cardId } = req.params;
 
   Card.findById(cardId)
+    .orFail(new NotFoundError('Карточка с указанным _id не найдена'))
     .then((card) => {
-      if (!card) {
-        throw new NotFoundError('Карточка с указанным _id не найдена');
-      }
       if (card.owner.toString() !== req.user._id) {
         throw new ForbiddenError('Запрещено удалять чужие карточки');
       }
@@ -58,10 +56,8 @@ const likeCard = (req, res, next) => {
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
+    .orFail(new NotFoundError('Карточка с указанным _id не найдена'))
     .then((card) => {
-      if (!card) {
-        throw new NotFoundError('Карточка с указанным _id не найдена');
-      }
       res.send(card);
     })
     .catch((err) => {
@@ -78,10 +74,8 @@ const dislikeCard = (req, res, next) => {
     { $pull: { likes: req.user._id } },
     { new: true },
   )
+    .orFail(new NotFoundError('Карточка с указанным _id не найдена'))
     .then((card) => {
-      if (!card) {
-        throw new NotFoundError('Карточка с указанным _id не найдена');
-      }
       res.send(card);
     })
     .catch((err) => {
