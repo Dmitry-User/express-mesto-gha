@@ -56,9 +56,7 @@ const createUser = (req, res, next) => {
       password: hash, // записываем хеш в базу
     }))
     .then((newUser) => {
-      const userWithoutPassword = newUser.toObject();
-      delete userWithoutPassword.password;
-      res.send(userWithoutPassword);
+      res.send(newUser);
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
@@ -126,6 +124,14 @@ const login = (req, res, next) => {
     .catch(next);
 };
 
+const logout = (req, res, next) => {
+  try {
+    res.clearCookie('authorization').send({ message: 'Вы вышли из профиля' });
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   getUsers,
   getUserById,
@@ -134,4 +140,5 @@ module.exports = {
   updateUser,
   updateAvatar,
   login,
+  logout,
 };

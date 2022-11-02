@@ -36,6 +36,8 @@ const userSchema = new Schema({
   },
 }, {
   versionKey: false,
+  toObject: { useProjection: true },
+  toJSON: { useProjection: true },
 });
 
 // eslint-disable-next-line func-names
