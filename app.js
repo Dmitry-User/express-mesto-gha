@@ -7,6 +7,7 @@ const helmet = require('helmet');
 const { errors } = require('celebrate');
 const router = require('./routes');
 const handleError = require('./middlewares/handle-error');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const {
   PORT = 3000,
@@ -26,7 +27,10 @@ app.use(cookieParser());
 app.use(helmet());
 app.use(express.json()); // встроенный метод, вместо body-parser
 
+app.use(requestLogger); // логгер запросов
 app.use(router);
+
+app.use(errorLogger); // логгер ошибок
 app.use(errors());
 app.use(handleError);
 
